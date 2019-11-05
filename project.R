@@ -2,7 +2,7 @@ library(tidycensus)
 library(tidyverse)
 library(dplyr)
 
-census_api_key("51bd9818d5b6caed096e8569639cc6e4188baa62", install = TRUE)
+census_api_key(Sys.getenv('CENSUS_API_KEY'))
 
 
 View(tidycensus::load_variables(2017, "acs5", cache = TRUE))
@@ -16,6 +16,7 @@ acs_data <- tidycensus::get_acs(geography = 'county',
                                                has_bachelors = "B06009_005",
                                                uninsured_19_25_male = "B27001_011")
 )
+
 
 
 
