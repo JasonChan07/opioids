@@ -2,11 +2,10 @@ library(tidycensus)
 library(tidyverse)
 library(dplyr)
 
-census_api_key(Sys.getenv('CENSUS_API_KEY'))
-
+key <- Sys.getenv('CENSUS_API_KEY')
+census_api_key(key)
 
 View(tidycensus::load_variables(2017, "acs5", cache = TRUE))
-
 
 acs_data <- tidycensus::get_acs(geography = 'county',
                                  variables = c(total_female = "B01001_026",
