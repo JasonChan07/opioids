@@ -16,3 +16,6 @@ acs_data <- tidycensus::get_acs(geography = 'county',
 
 # opioid prescription data
 prescriptions <- read.csv('./opioid_prescribing_rate.csv')
+
+# overdose data
+overdoses <- read.csv('./overdoses.csv')

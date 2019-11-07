@@ -17,14 +17,19 @@ clean_acs_data <- function(df) {
                percent_hs_grad = high_school_grads / total_pop,
                percent_college_grad = has_bachelors / total_pop,
                percent_below_100_poverty = below_100_percent_poverty / total_pop,
-               percent_male_19_25_uninsured = uninsured_19_25_male / total_male) %>%
-        select(c(geoid, name, 
+               percent_male_19_25_uninsured = uninsured_19_25_male / total_male,
+               # replace first character of geoids that start with 0 with empty string
+               geoid = ifelse(substr(geoid, 1, 1) == 0, sub("^.", "", geoid), geoid)) %>%
+        select(c(geoid, 
+                 name, 
                  percent_hs_grad, 
                  percent_college_grad,
                  percent_below_100_poverty,
                  percent_male_19_25_uninsured)
     )
     
+    
+
     # consider multiplying percentages by 100
     return(acs_clean)
 }
@@ -35,15 +40,22 @@ clean_prescription_data <- function(df) {
     prescriptions_clean <- df %>%
         clean_names() %>%
         select(geoid = state_county_fips_code, 
-               prescriptions_per_100 = x2017) %>%
-        mutate(geoid = paste0("0", geoid)
-    )
-               
+               prescriptions_per_100 = x2017)
+    
     return(prescriptions_clean)
 }
 
 
-
+clean_overdose_data <- function(df) {
+    
+    # correct FIPS codes
+    overdose_clean <- df %>%
+        clean_names() %>%
+        select(geoid = county_code,
+               crud_rate)
+    
+    return(overdose_clean)
+}
 
 
 

@@ -1,7 +1,7 @@
 # loads datasets
-source('./acs_queries.R')
+source('./queries.R')
 # cleans datasets
-source('./acs_cleaning.R')
+source('./cleaning.R')
 
 acs_clean <- clean_acs_data(df = acs_data)
 prescription_clean <- clean_prescription_data(df = prescriptions)
