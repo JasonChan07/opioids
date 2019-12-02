@@ -3,6 +3,7 @@ library(dplyr)
 library(janitor)
 
 clean_acs_data <- function(df) {
+
     
     # convert acs data to wide format
     acs_wide <- df %>% 
@@ -18,8 +19,10 @@ clean_acs_data <- function(df) {
                percent_college_grad = has_bachelors / total_pop,
                percent_below_100_poverty = below_100_percent_poverty / total_pop,
                percent_male_19_25_uninsured = uninsured_19_25_male / total_male,
-               # replace first character of geoids that start with 0 with empty string
-               geoid = ifelse(substr(geoid, 1, 1) == 0, sub("^.", "", geoid), geoid)) %>%
+    # replace first character of geoids that start with 0 with empty string
+               geoid = as.integer(ifelse(substr(geoid, 1, 1) == 0, sub("^.", "", geoid), geoid))) %>%
+    # multiplying percentages by 100
+        mutate_at(vars(matches('percent')), function(x) {x * 100}) %>%
         select(c(geoid, 
                  name, 
                  percent_hs_grad, 
@@ -28,9 +31,6 @@ clean_acs_data <- function(df) {
                  percent_male_19_25_uninsured)
     )
     
-    
-
-    # consider multiplying percentages by 100
     return(acs_clean)
 }
 
@@ -45,16 +45,21 @@ clean_prescription_data <- function(df) {
     return(prescriptions_clean)
 }
 
-
 clean_overdose_data <- function(df) {
     
     # correct FIPS codes
     overdose_clean <- df %>%
         clean_names() %>%
+        mutate(crude_rate = suppressWarnings(as.numeric(as.character(crude_rate))),
+               deaths =  suppressWarnings(as.numeric(as.character(deaths))),
+               population = suppressWarnings(as.numeric(as.character(population)))) %>%
         select(geoid = county_code,
-               crud_rate)
+               crude_death_rate = crude_rate,
+               deaths,
+               population)
     
     return(overdose_clean)
+
 }
 
 
