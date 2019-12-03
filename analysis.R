@@ -4,7 +4,8 @@ library(AER)
 library(vcd)
 library(DataExplorer)
 library(lmtest)
-library(sandwich)
+library(knitr)
+library()
 
 # loads datasets
 source('./queries.R')
@@ -24,6 +25,10 @@ opioid <- acs_clean %>%
                        by = 'geoid') %>%
             filter(crude_death_rate != 0) %>% 
             select(-c(geoid, name, deaths, population))
+
+png("test.png", height = 50*nrow(head(opioid)), width = 200*ncol(head(opioid)))
+grid.table(head(opioid))
+dev.off()
 
 # distribution of variables
 DataExplorer::plot_histogram(opioid)
