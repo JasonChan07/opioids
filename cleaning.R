@@ -14,11 +14,13 @@ clean_acs_data <- function(df) {
     
     # generate features from acs wide data
     acs_clean <- acs_wide %>%
-        mutate(total_pop = total_male + total_female,
+        mutate(
                percent_hs_grad = high_school_grads / total_pop,
                percent_college_grad = has_bachelors / total_pop,
                percent_below_100_poverty = below_100_percent_poverty / total_pop,
-               percent_male_19_25_uninsured = uninsured_19_25_male / total_male,
+               percent_male_26_34_uninsured = uninsured_26_34_male / total_male,
+               percent_female_26_34_uninsured = uninsured_26_34_female / total_female,
+               log_median_income = log(median_income),
     # replace first character of geoids that start with 0 with empty string
                geoid = as.integer(ifelse(substr(geoid, 1, 1) == 0, sub("^.", "", geoid), geoid))) %>%
     # multiplying percentages by 100
@@ -28,7 +30,9 @@ clean_acs_data <- function(df) {
                  percent_hs_grad, 
                  percent_college_grad,
                  percent_below_100_poverty,
-                 percent_male_19_25_uninsured)
+                 percent_male_26_34_uninsured,
+                 percent_female_26_34_uninsured,
+                 log_median_income)
     )
     
     return(acs_clean)
@@ -52,7 +56,7 @@ clean_overdose_data <- function(df) {
         clean_names() %>%
         mutate(crude_rate = suppressWarnings(as.numeric(as.character(crude_rate))),
                deaths =  suppressWarnings(as.numeric(as.character(deaths))),
-               population = suppressWarnings(as.numeric(as.character(population)))) %>%
+               log_population = log(suppressWarnings(as.numeric(as.character(population))))) %>%
         select(geoid = county_code,
                crude_death_rate = crude_rate,
                deaths,

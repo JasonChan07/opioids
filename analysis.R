@@ -2,6 +2,9 @@ library(car)
 library(glm)
 library(AER)
 library(vcd)
+library(DataExplorer)
+library(lmtest)
+library(sandwich)
 
 # loads datasets
 source('./queries.R')
@@ -19,29 +22,28 @@ opioid <- acs_clean %>%
                        by = 'geoid') %>%
             inner_join(overdoses_clean,
                        by = 'geoid') %>%
-            filter(crude_death_rate != 0)
+            filter(crude_death_rate != 0) %>% 
+            select(-c(geoid, name, deaths, population))
 
-# correlation between variables
-pairs(opioid[, 3:8])
-cor(opioid[, 3:8], method = 'spearman')
+# distribution of variables
+DataExplorer::plot_histogram(opioid)
 
-# which counties don't have prescription data?
+# base model
+base_lm <- lm(crude_death_rate ~ ., data = opioid)
+summary(base_lm)
 
+# check for multicollinearity
+car::vif(base_lm)
 
-# base poisson model
-poisson <- glm(deaths ~ percent_college_grad + percent_below_100_poverty +
-                percent_male_19_25_uninsured + prescriptions_per_100, offset = log(population),
-                family = poisson(link = "log"), data = opioid)
-
-
-summary(poisson)
+# test for heteroskedasticity
+lmtest::bptest(base_lm)
 
 # fitted vs residuals
-plot(poisson$fitted.values, poisson$residuals)
+plot(base_lm$fitted.values, base_lm$residuals,
+     xlab = 'Fitted Values', ylab = 'Residuals',
+     main = 'Base Linear Model')
 
-# chi-sq test
-anova(poisson, test="Chisq")
+# regression with heteroskedastic robust errors
+coeftest(base_lm, vcov = vcovHC(base_lm, type = "HC0"))
 
-# distplot
-distplot(opioid$deaths, type = 'poisson')
 
